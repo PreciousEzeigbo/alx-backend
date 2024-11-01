@@ -1,35 +1,35 @@
 #!/usr/bin/env python3
-"""BaseCaching module.
+"""Last-In First-Out caching module.
 """
+from collections import OrderedDict
+
+from base_caching import BaseCaching
 
 
-class BaseCaching():
-    """BaseCaching defines:
-      - constants of your caching system
-      - where your data are stored (in a dictionary)
+class LIFOCache(BaseCaching):
+    """Represents an object that allows storing and
+    retrieving items from a dictionary with a LIFO
+    removal mechanism when the limit is reached.
     """
-    MAX_ITEMS = 4
-
     def __init__(self):
-        """Initiliazes the cache.
+        """Initializes the cache.
         """
-        self.cache_data = {}
-
-    def print_cache(self):
-        """Prints the cache.
-        """
-        print("Current cache:")
-        for key in sorted(self.cache_data.keys()):
-            print("{}: {}".format(key, self.cache_data.get(key)))
+        super().__init__()
+        self.cache_data = OrderedDict()
 
     def put(self, key, item):
         """Adds an item in the cache.
         """
-        error_msg = "put must be implemented in your cache class"
-        raise NotImplementedError(error_msg)
+        if key is None or item is None:
+            return
+        if key not in self.cache_data:
+            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
+                last_key, _ = self.cache_data.popitem(True)
+                print("DISCARD:", last_key)
+        self.cache_data[key] = item
+        self.cache_data.move_to_end(key, last=True)
 
     def get(self, key):
         """Retrieves an item by key.
         """
-        error_msg = "get must be implemented in your cache class"
-        raise NotImplementedError(error_msg)
+        return self.cache_data.get(key, None)
